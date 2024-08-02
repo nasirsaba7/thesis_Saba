@@ -1,0 +1,34 @@
+import string
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+from gensim.corpora.dictionary import Dictionary
+from gensim.models.ldamodel import LdaModel
+
+# Sample text
+documents = [
+    " text here "
+]
+
+# Preprocess the text
+docs = [doc.lower() for doc in documents]
+docs = [''.join(c for c in doc if c not in string.punctuation) for doc in docs]
+docs = [word_tokenize(doc) for doc in docs]
+
+stop_words = set(stopwords.words('english'))
+docs = [[word for word in doc if word not in stop_words] for doc in docs]
+
+lemmatizer = WordNetLemmatizer()
+docs = [[lemmatizer.lemmatize(word) for word in doc] for doc in docs]
+
+# Create a dictionary and corpus
+dictionary = Dictionary(docs)
+corpus = [dictionary.doc2bow(doc) for doc in docs]
+
+# Perform LDA
+lda_model = LdaModel(corpus, num_topics=5, id2word=dictionary, passes=15)
+
+# Display topics
+topics = lda_model.print_topics(num_words=5)
+for topic in topics:
+    print(topic)
